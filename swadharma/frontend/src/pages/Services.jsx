@@ -50,7 +50,7 @@ export default function Services() {
         .section-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:clamp(2rem,5vw,3.5rem);margin-bottom:1rem;text-align:center;color:var(--blue);position:relative}
         .section-title:after{content:'';position:absolute;bottom:-.8rem;left:50%;transform:translateX(-50%);width:80px;height:4px;background-color:var(--yellow)}
         .section-subtitle{font-weight:400;font-size:clamp(1rem,3vw,1.2rem);max-width:700px;margin:0 auto 3rem;text-align:center;color:#555}
-        .card-container{display:grid;gap:2rem;max-width:1400px;margin:0 auto;grid-template-columns:repeat(3,1fr)}
+        .card-container{display:grid;gap:2rem;max-width:1400px;height:30rem;margin:0 auto;grid-template-columns:repeat(3,1fr)}
         .service-card{width:100%;max-width:350px;height:auto;min-height:450px;perspective:1000px;position:relative;margin:0 auto}
         .service-card-inner{position:relative;width:100%;height:100%;text-align:center;transition:transform .8s cubic-bezier(.16,1,.3,1);transform-style:preserve-3d}
         .service-card-front,.service-card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;justify-content:center;padding:2rem;box-shadow:0 15px 30px rgba(0,0,0,.08)}
@@ -70,7 +70,7 @@ export default function Services() {
         .process-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:clamp(2rem,5vw,3.5rem);margin-bottom:3rem;text-align:center;color:var(--yellow);position:relative;z-index:2}
         .process-container{display:flex;flex-wrap:wrap;justify-content:center;position:relative;z-index:2;max-width:1200px;margin:0 auto;gap:2rem}
         .process-step{flex:0 0 calc(25% - 2rem);text-align:center;padding:0 1.5rem;position:relative;margin-bottom:2rem;opacity:0;transform:translateY(30px);transition:all .6s ease-out}
-        .process-step:not(:last-child):after{content:'';position:absolute;top:70px;right:-15px;width:30px;height:2px;background-color:var(--yellow)}
+        .process-step:not(:last-child):after{content:'';position:absolute;top:30px;right:-27px;width:30px;height:2px;background-color:var(--white);transform:rotate(90deg);z-index:1}
         .step-number{width:70px;height:70px;background-color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:var(--blue);margin:0 auto 25px;position:relative;z-index:2}
         .step-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:1.3rem;margin-bottom:15px;color:var(--white)}
         .step-desc{font-weight:300;font-size:1rem;color:rgba(255,255,255,.9)}

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function AboutUs() {
+  // Navbar scroll effect
   useEffect(() => {
     const nb = document.getElementById('navbar')
     const onScroll = () => {
@@ -12,14 +13,59 @@ export default function AboutUs() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Hero text transition effect
+  useEffect(() => {
+    const heroTitleSpans = document.querySelectorAll('.hero-title span')
+    const heroSubtitle = document.querySelector('.hero-subtitle')
+    const start = setTimeout(() => {
+      // Animate title
+      heroTitleSpans.forEach((span, index) => {
+        setTimeout(() => {
+          span.style.transform = 'translateY(0)'
+          span.style.opacity = '1'
+        }, 300 * index) // Stagger if multiple spans
+      })
+      // Animate subtitle
+      setTimeout(() => {
+        if (heroSubtitle) {
+          heroSubtitle.style.transform = 'translateY(0)'
+          heroSubtitle.style.opacity = '1'
+        }
+      }, 600) // Starts after title animation begins
+    }, 500) // Initial delay
+    return () => clearTimeout(start)
+  }, [])
+
   return (
     <main>
       <style>{`
         :root{--section-bg:#f8f9fa;--border-color:#e0e0e0;--dark-blue:#0d1280;--light-yellow:#fff9c4}
-        .hero{height:70vh;display:flex;flex-direction:column;justify-content:center;padding:0 5%;position:relative;overflow:hidden;background:linear-gradient(135deg,#f5f7fa 0%,#e4e7f1 100%);margin-top:80px}
-        .hero-content{text-align:center;position:relative;z-index:2}
-        .hero-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:4rem;line-height:1.1;margin:0;color:var(--blue)}
-        .hero-subtitle{font-weight:300;font-style:italic;font-size:1.5rem;margin-top:1.5rem;max-width:600px;margin-inline:auto;color:#333}
+        
+        /* --- HERO & NEW STYLES --- */
+        .hero {
+          height: 80vh; /* UPDATED from 100vh */
+          min-height: 600px; /* ADDED */
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0 5%;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(135deg,#f5f7fa 0%,#e4e7f1 100%);
+        }
+        
+        .floating-elements{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none}
+        .floating-element{position:absolute;opacity:.9;z-index:10;animation:float 6s ease-in-out infinite}
+        .floating-element.circle{width:clamp(80px,25vw,200px);height:clamp(80px,25vw,200px);border-radius:50%;background-color:var(--yellow);top:20%;right:10%}
+        .floating-element.square{width:clamp(60px,20vw,150px);height:clamp(60px,20vw,150px);background-color:var(--blue);bottom:15%;left:10%;animation-delay:1s}
+        @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(5deg)}}
+
+        .hero-content{text-align:center;position:relative;z-index:20}
+        .hero-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:4rem;line-height:1.1;margin:0;color:var(--blue); overflow: hidden;}
+        .hero-title span {display:inline-block;transform:translateY(100%);opacity:0;transition:transform .6s ease, opacity .6s ease}
+        .hero-subtitle{font-weight:300;font-style:italic;font-size:1.5rem;margin-top:1.5rem;max-width:600px;margin-inline:auto;color:#333; transform:translateY(10px);opacity:0;transition:transform .6s ease, opacity .6s ease}
+        /* --- END HERO --- */
+
         section{padding:100px 0}
         .section-header{text-align:center;margin-bottom:70px;padding:0 15px}
         .section-header h2{font-size:2.8rem;color:var(--blue);margin-bottom:15px;position:relative;display:inline-block;font-weight:800;letter-spacing:-.5px}
@@ -68,12 +114,17 @@ export default function AboutUs() {
         .cta-btn:before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background-color:var(--blue);transform:translateX(-100%);transition:transform .6s cubic-bezier(.16,1,.3,1);z-index:-1}
         .cta-btn:hover{color:var(--white);transform:translateY(-3px);box-shadow:0 12px 25px rgba(253,235,16,.25)}
         .cta-btn:hover:before{transform:translateX(0)}
+        
         @media(max-width:992px){.story-content{flex-direction:column}.hero-title{font-size:3rem}.section-header h2{font-size:2.2rem}.values-content{flex-direction:column;gap:25px}.process-steps{flex-direction:column;gap:25px}}
-        @media(max-width:576px){.hero{height:50vh}.hero-title{font-size:2rem}.section-header h2{font-size:1.8rem}.team-member{width:100%;max-width:350px}.story-img{aspect-ratio:16/9}}
+        @media(max-width:576px){.hero{height:auto; min-height: 50vh; padding: 100px 5%;}.hero-title{font-size:2rem}.section-header h2{font-size:1.8rem}.team-member{width:100%;max-width:350px}.story-img{aspect-ratio:16/9}}
       `}</style>
 
-      {/* HERO */}
+      {/* HERO (UPDATED) */}
       <section className="hero">
+        <div className="floating-elements">
+          <div className="floating-element circle"></div>
+          <div className="floating-element square"></div>
+        </div>
         <div className="hero-content">
           <h1 className="hero-title"><span>About Us</span></h1>
           <p className="hero-subtitle">Discover the story behind Swadharma Creations</p>
@@ -126,10 +177,9 @@ export default function AboutUs() {
           </div>
           <div className="team-members">
             {[
-              {img:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80', name:'Aisha Sharma', role:'Founder & Creative Director', links:['linkedin-in','instagram','twitter']},
-              {img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80', name:'Raj Patel', role:'Lead Photographer', links:['instagram','behance','twitter']},
-              {img:'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=800&q=80', name:'Maya Verma', role:'Senior Designer', links:['dribbble','behance','instagram']},
-              {img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80', name:'Arjun Singh', role:'Video Director', links:['vimeo-v','instagram','youtube']}
+              {img:'/HARI.jpg', name:'Harikesh Varma', role:'Founder & Creative Director', links:['linkedin-in','instagram','twitter']},
+              {img:'/charan.jpg', name:'Charan Sai', role:'Lead Photographer', links:['instagram','behance','twitter']},
+              {img:'/sandesh.jpg', name:'Sandesh', role:'Video Director', links:['vimeo-v','instagram','youtube']}
             ].map((m,i)=>(
               <div className="team-member" key={i}>
                 <div className="member-img"><img src={m.img} alt={m.name} /></div>

@@ -7,11 +7,13 @@ import AboutUs from './pages/AboutUs.jsx'
 import Services from './pages/Services.jsx'
 import WorkPage from './pages/WorkPage.jsx'
 import ContactUs from './pages/ContactUs.jsx'
+import ScrollToTop from './ScrollToTop.jsx' 
 
 export default function App() {
   return (
     <div className="page-container">
       <Navbar />
+      <ScrollToTop /> {/* 2. Add the component here */}
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/aboutus" element={<AboutUs />} />

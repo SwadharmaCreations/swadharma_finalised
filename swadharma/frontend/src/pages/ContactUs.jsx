@@ -21,12 +21,32 @@ export default function ContactUs() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // NEW: Hero text transition effect
+  useEffect(() => {
+    const heroTitleSpan = document.querySelector('.hero-title span')
+    const heroSubtitle = document.querySelector('.hero-subtitle')
+    const start = setTimeout(() => {
+      // Animate title
+      if (heroTitleSpan) {
+        heroTitleSpan.style.transform = 'translateY(0)'
+        heroTitleSpan.style.opacity = '1'
+      }
+      // Animate subtitle
+      setTimeout(() => {
+        if (heroSubtitle) {
+          heroSubtitle.style.transform = 'translateY(0)'
+          heroSubtitle.style.opacity = '1'
+        }
+      }, 300) // Stagger subtitle
+    }, 500) // Initial delay
+    return () => clearTimeout(start)
+  }, [])
+
   const onSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     setError('')
 
-    // ✅ cache the form element BEFORE any await
     const formEl = e.currentTarget
 
     const form = new FormData(formEl)
@@ -35,7 +55,6 @@ export default function ContactUs() {
       email: form.get('email')?.toString().trim(),
       subject: form.get('subject')?.toString().trim(),
       message: form.get('message')?.toString().trim(),
-      // captchaToken: window.__yourCaptchaToken
     }
 
     try {
@@ -50,7 +69,6 @@ export default function ContactUs() {
         throw new Error(data?.message || `Request failed (${res.status})`)
       }
 
-      // ✅ safe to reset using the cached element
       formEl.reset()
       setShowAck(true)
     } catch (err) {
@@ -64,15 +82,56 @@ export default function ContactUs() {
   return (
     <main>
       <style>{`
-        .contact-hero{height:70vh;display:flex;flex-direction:column;justify-content:center;padding:0 10%;position:relative;overflow:hidden;background:linear-gradient(135deg,#f5f7fa 0%,#e4e7f1 100%);margin-top:80px}
-        .hero-content{position:relative;z-index:2;max-width:800px;margin:0 auto;text-align:center}
-        .hero-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:3.5rem;line-height:1.2;margin:0 0 1.5rem 0;letter-spacing:-.03em;color:var(--blue)}
+        /* --- HERO UPDATED --- */
+        .contact-hero {
+          height: 80vh; 
+          min-height: 600px; 
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0 10%;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(135deg,#f5f7fa 0%,#e4e7f1 100%);
+        }
+        .hero-content{position:relative;z-index:20;max-width:800px;margin:0 auto;text-align:center} /* z-index updated to 20 */
+        .hero-title {
+          font-family: 'Commissioner', sans-serif;
+          font-weight: 700;
+          font-size: 3.5rem;
+          line-height: 1.2;
+          margin: 0 0 1.5rem 0;
+          letter-spacing: -.03em;
+          color: var(--blue);
+          overflow: hidden; 
+        }
+        .hero-title span {
+          display: inline-block;
+          transform: translateY(100%);
+          opacity: 0;
+          transition: transform .6s ease, opacity .6s ease;
+        }
         .hero-highlight{background-color:var(--yellow);padding:0 .5rem;display:inline-block}
-        .hero-subtitle{font-weight:400;font-size:1.4rem;color:#444;margin:0 auto;max-width:600px}
-        .floating-element{position:absolute;z-index:1;opacity:.9;mix-blend-mode:multiply}
-        .floating-element.circle{width:200px;height:200px;border-radius:50%;background-color:var(--yellow);bottom:15%;left:10%;animation:float 8s ease-in-out infinite}
-        .floating-element.square{width:150px;height:150px;background-color:var(--blue);top:20%;right:10%;animation:float 10s ease-in-out infinite;animation-delay:1s}
-        @keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-30px) rotate(5deg)}}
+        .hero-subtitle {
+          font-weight: 400;
+          font-size: 1.4rem;
+          color: #444;
+          margin: 0 auto;
+          max-width: 600px;
+          transform: translateY(10px);
+          opacity: 0;
+          transition: transform .6s ease, opacity .6s ease;
+        }
+        /* --- END HERO --- */
+
+        /* --- FLOATING ELEMENTS (Synced with Services.jsx) --- */
+        .floating-elements{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none}
+        .floating-element{position:absolute;opacity:.9;z-index:10;animation:float 6s ease-in-out infinite}
+        .floating-element.circle{width:clamp(80px,25vw,200px);height:clamp(80px,25vw,200px);border-radius:50%;background-color:var(--yellow);top:20%;right:10%}
+        .floating-element.square{width:clamp(60px,20vw,150px);height:clamp(60px,20vw,150px);background-color:var(--blue);bottom:15%;left:10%;animation-delay:1s}
+        @keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(5deg)}}
+        /* --- END FLOATING ELEMENTS --- */
+        
         .contact-section{padding:5rem 10%;background-color:#f8f9fa}
         .contact-container{display:flex;gap:4rem;max-width:1400px;margin:0 auto}
         .contact-form-container{flex:1;background-color:var(--white);padding:3rem;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.05);position:relative;z-index:2}
@@ -96,7 +155,7 @@ export default function ContactUs() {
         .map-overlay-text{font-weight:300;font-size:1rem;max-width:350px;margin-bottom:1.5rem;line-height:1.6}
         .map-btn{display:inline-block;background-color:var(--yellow);color:var(--black);font-family:'Commissioner',sans-serif;font-weight:700;font-size:.95rem;padding:.8rem 2rem;text-decoration:none;border-radius:50px;transition:all .3s ease}
         .form-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:2.2rem;color:var(--blue);margin-bottom:.8rem}
-        .form-subtitle{font-weight:300;font-size:1.1rem;color:#666;margin-bottom:2rem;line-height:1.6}
+        .form-subtitle{font-weight:300;font-size:1.1rem;color:#666;margin-bottom:2.5rem;line-height:1.6}
         .form-group{margin-bottom:1.5rem;position:relative}
         .form-label{display:block;font-weight:500;font-size:.95rem;color:#444;margin-bottom:.6rem}
         .form-input{width:100%;padding:1rem 1.2rem;border:1px solid #e0e0e0;border-radius:8px;font-size:1rem;transition:all .3s ease;background-color:#f9f9ff}
@@ -115,7 +174,7 @@ export default function ContactUs() {
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         @media(max-width:992px){.contact-container{flex-direction:column}}
       `}</style>
-
+  
       {/* HERO */}
       <section className="contact-hero">
         <div className="floating-element circle"></div>
@@ -126,7 +185,7 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* CONTACT (UNCHANGED) */}
       <section className="contact-section" id="contact">
         <div className="contact-container">
           <div className="contact-form-container">
@@ -176,7 +235,7 @@ export default function ContactUs() {
                 <div className="contact-info-item"><i className="fas fa-clock"></i><span>Mon-Fri: 9am - 6pm</span></div>
               </div>
               <div className="social-links" style={{display:'flex',gap:'1.2rem',marginTop:'1.8rem'}}>
-                {['instagram','linkedin-in','behance','dribbble'].map((n,i)=>(
+                {['instagram','linkedin-in','facebook'].map((n,i)=>(
                   <a key={i} className="social-link" href="#"><i className={`fab fa-${n}`}></i></a>
                 ))}
               </div>
@@ -194,7 +253,7 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* ACK MODAL */}
+      {/* ACK MODAL (UNCHANGED) */}
       <div className="ack-overlay" onClick={()=>setShowAck(false)} />
       <div className="ack-modal">
         <i className="fas fa-check-circle ack-icon"></i>

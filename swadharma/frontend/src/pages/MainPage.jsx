@@ -54,7 +54,18 @@ export default function MainPage() {
   return (
     <main>
       <style>{`
-        .hero{height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 10%;position:relative;overflow:hidden;background:linear-gradient(135deg,#f5f7fa 0%,#e4e7f1 100%);text-align:center}
+        .hero {
+          height: 80vh; /* UPDATED from 100vh */
+          min-height: 600px; /* ADDED */
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0 10%;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+          text-align: center;
+        }
         .hero-content{position:relative;z-index:20}
         .hero-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:clamp(2.5rem,8vw,6rem);line-height:1;margin:0;text-transform:uppercase;letter-spacing:-0.03em;color:var(--blue);position:relative;overflow:hidden;text-align:center}
         .hero-title span{display:inline-block;transform:translateY(100%);opacity:0;transition:transform .6s ease, opacity .6s ease}
