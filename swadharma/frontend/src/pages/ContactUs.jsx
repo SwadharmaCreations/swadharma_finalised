@@ -1,16 +1,25 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { useForm, ValidationError } from '@formspree/react';
 
-const RAW_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim()
-// normalize: remove trailing slash
-const BASE = RAW_BASE.replace(/\/+$/, '')
-// final endpoint: if BASE given -> `${BASE}/api/contact`, else -> `/api/contact`
-const CONTACT_URL = BASE ? `${BASE}/api/contact` : `/api/contact`
+// 1. PASTE YOUR FORMSPREE FORM ID HERE
+const FORMSPREE_ID = 'YOUR_UNIQUE_ID';
 
 export default function ContactUs() {
-  const [showAck, setShowAck] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [state, handleSubmit] = useForm(FORMSPREE_ID);
+  const [showAck, setShowAck] = useState(false);
+  const formRef = useRef(null); // Ref to access the form element
 
+  // Effect to show modal and reset form on success
+  useEffect(() => {
+    if (state.succeeded) {
+      setShowAck(true); // Show your success modal
+      if (formRef.current) {
+        formRef.current.reset(); // Reset the form fields
+      }
+    }
+  }, [state.succeeded]);
+
+  // Navbar scroll effect
   useEffect(() => {
     const nb = document.getElementById('navbar')
     const onScroll = () => {
@@ -21,63 +30,25 @@ export default function ContactUs() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // NEW: Hero text transition effect
+  // Hero text transition effect
   useEffect(() => {
     const heroTitleSpan = document.querySelector('.hero-title span')
     const heroSubtitle = document.querySelector('.hero-subtitle')
     const start = setTimeout(() => {
-      // Animate title
       if (heroTitleSpan) {
         heroTitleSpan.style.transform = 'translateY(0)'
         heroTitleSpan.style.opacity = '1'
       }
-      // Animate subtitle
       setTimeout(() => {
         if (heroSubtitle) {
           heroSubtitle.style.transform = 'translateY(0)'
           heroSubtitle.style.opacity = '1'
         }
-      }, 300) // Stagger subtitle
-    }, 500) // Initial delay
+      }, 300)
+    }, 500)
     return () => clearTimeout(start)
   }, [])
 
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setError('')
-
-    const formEl = e.currentTarget
-
-    const form = new FormData(formEl)
-    const payload = {
-      name: form.get('name')?.toString().trim(),
-      email: form.get('email')?.toString().trim(),
-      subject: form.get('subject')?.toString().trim(),
-      message: form.get('message')?.toString().trim(),
-    }
-
-    try {
-      const res = await fetch(CONTACT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data?.message || `Request failed (${res.status})`)
-      }
-
-      formEl.reset()
-      setShowAck(true)
-    } catch (err) {
-      console.error('Contact POST failed:', err)
-      setError(err?.message || 'Failed to send message')
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   return (
     <main>
@@ -94,7 +65,7 @@ export default function ContactUs() {
           overflow: hidden;
           background: linear-gradient(135deg,#f5f7fa 0%,#e4e7f1 100%);
         }
-        .hero-content{position:relative;z-index:20;max-width:800px;margin:0 auto;text-align:center} /* z-index updated to 20 */
+        .hero-content{position:relative;z-index:20;max-width:800px;margin:0 auto;text-align:center}
         .hero-title {
           font-family: 'Commissioner', sans-serif;
           font-weight: 700;
@@ -124,7 +95,7 @@ export default function ContactUs() {
         }
         /* --- END HERO --- */
 
-        /* --- FLOATING ELEMENTS (Synced with Services.jsx) --- */
+        /* --- FLOATING ELEMENTS --- */
         .floating-elements{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none}
         .floating-element{position:absolute;opacity:.9;z-index:10;animation:float 6s ease-in-out infinite}
         .floating-element.circle{width:clamp(80px,25vw,200px);height:clamp(80px,25vw,200px);border-radius:50%;background-color:var(--yellow);top:20%;right:10%}
@@ -165,57 +136,96 @@ export default function ContactUs() {
         .submit-btn:before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background-color:var(--blue);transform:translateX(-100%);transition:transform .6s cubic-bezier(.16,1,.3,1);z-index:-1}
         .submit-btn:hover{color:#fff;transform:translateY(-3px);box-shadow:0 12px 25px rgba(253,235,16,.25)}
         .submit-btn:hover:before{transform:translateX(0)}
-        .ack-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;display:${showAck?'block':'none'};animation:fadeIn .3s ease}
-        .ack-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.2);z-index:1001;text-align:center;max-width:500px;width:90%;display:${showAck?'block':'none'};animation:fadeIn .5s ease}
+        .ack-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;display:${showAck ? 'block' : 'none'};animation:fadeIn .3s ease}
+        .ack-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.2);z-index:1001;text-align:center;max-width:500px;width:90%;display:${showAck ? 'block' : 'none'};animation:fadeIn .5s ease}
         .ack-icon{font-size:4rem;color:var(--blue);margin-bottom:1.5rem}
-        .ack-title{font-family:'Commissioner',sans-serif;font-weight:700;font-size:2rem;color:var(--blue);margin-bottom:1rem}
+        .ack-title{font-family:'Commissioner',sans-serif;font-weight:7Am-bottom:1rem}
         .ack-text{font-weight:400;font-size:1.1rem;color:#444;margin-bottom:2rem;line-height:1.6}
         .ack-btn{display:inline-block;background-color:var(--yellow);color:var(--black);font-family:'Commissioner',sans-serif;font-weight:700;font-size:1.1rem;padding:.8rem 2rem;text-decoration:none;border-radius:50px;transition:all .3s ease;border:none;cursor:pointer}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         @media(max-width:992px){.contact-container{flex-direction:column}}
+        
+        /* Formspree validation error style */
+        .formspree-error {
+          color: #f44336; /* Red color for errors */
+          font-size: 0.9rem;
+          margin-top: -10px;
+          margin-bottom: 10px;
+        }
       `}</style>
   
       {/* HERO */}
       <section className="contact-hero">
-        <div className="floating-element circle"></div>
-        <div className="floating-element square"></div>
+        <div className="floating-elements">
+          <div className="floating-element circle"></div>
+          <div className="floating-element square"></div>
+        </div>
         <div className="hero-content">
-          <h1 className="hero-title">Let's <span className="hero-highlight">Connect</span></h1>
+          <h1 className="hero-title">
+            <span>Let's <span className="hero-highlight">Connect</span></span>
+          </h1>
           <p className="hero-subtitle">We'd love to hear about your project and explore how we can bring your vision to life</p>
         </div>
       </section>
 
-      {/* CONTACT (UNCHANGED) */}
+      {/* CONTACT FORM UPDATED */}
       <section className="contact-section" id="contact">
         <div className="contact-container">
           <div className="contact-form-container">
             <h2 className="form-title">Send Us a Message</h2>
             <p className="form-subtitle">Have a project in mind? Fill out the form and we'll get back to you within 24 hours.</p>
 
-            <form onSubmit={onSubmit}>
+            {/* 2. FORM IS UPDATED */}
+            <form ref={formRef} onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label" htmlFor="name">Full Name</label>
                 <input className="form-input" id="name" name="name" type="text" placeholder="Enter your name" required />
               </div>
+              
               <div className="form-group">
                 <label className="form-label" htmlFor="email">Email Address</label>
                 <input className="form-input" id="email" name="email" type="email" placeholder="Enter your email" required />
+                {/* 3. FORMSPREE ERROR MESSAGE FOR EMAIL */}
+                <ValidationError 
+                  prefix="Email" 
+                  field="email"
+                  errors={state.errors}
+                  className="formspree-error"
+                />
               </div>
+
               <div className="form-group">
                 <label className="form-label" htmlFor="subject">Subject</label>
                 <input className="form-input" id="subject" name="subject" type="text" placeholder="What is this regarding?" required />
               </div>
+
               <div className="form-group">
                 <label className="form-label" htmlFor="message">Your Message</label>
                 <textarea className="form-input" id="message" name="message" placeholder="Tell us about your project..." required />
+                {/* 4. FORMSPREE ERROR MESSAGE FOR MESSAGE */}
+                <ValidationError 
+                  prefix="Message" 
+                  field="message"
+                  errors={state.errors}
+                  className="formspree-error"
+                />
               </div>
-              {error && <div style={{color:'#f44336', marginBottom:'10px'}}>{error}</div>}
-              <button className="submit-btn" type="submit" disabled={submitting}>
-                {submitting ? 'Sending…' : 'Send Message'}
+
+              {/* 5. GENERAL ERROR MESSAGE (e.g., if server is down) */}
+              {state.errors && !state.succeeded && (
+                <div className="formspree-error">
+                  {state.errors.getFormErrors().map(error => error.message).join(', ')}
+                </div>
+              )}
+
+              {/* 6. BUTTON IS UPDATED */}
+              <button className="submit-btn" type="submit" disabled={state.submitting}>
+                {state.submitting ? 'Sending…' : 'Send Message'}
               </button>
             </form>
           </div>
 
+          {/* This whole info section is unchanged */}
           <div className="contact-info-container">
             <div className="contact-info-card">
               <h3 className="contact-info-title"><i className="fas fa-map-marker-alt"></i> Our Studio</h3>
@@ -225,7 +235,6 @@ export default function ContactUs() {
                 <div className="contact-info-item"><i className="fas fa-city"></i><span>Design District, Creative City 10001</span></div>
               </div>
             </div>
-
             <div className="contact-info-card">
               <h3 className="contact-info-title"><i className="fas fa-envelope"></i> Get In Touch</h3>
               <p className="contact-info-content">Prefer to reach out directly? Here's how you can contact our team.</p>
@@ -240,7 +249,6 @@ export default function ContactUs() {
                 ))}
               </div>
             </div>
-
             <div className="map-container">
               <i className="fas fa-map-marked-alt" style={{fontSize:'4rem', color:'var(--blue)'}}></i>
               <div className="map-overlay">
@@ -253,7 +261,7 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* ACK MODAL (UNCHANGED) */}
+      {/* ACK MODAL (This logic is now connected to Formspree) */}
       <div className="ack-overlay" onClick={()=>setShowAck(false)} />
       <div className="ack-modal">
         <i className="fas fa-check-circle ack-icon"></i>
